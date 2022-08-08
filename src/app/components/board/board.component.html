@@ -1,0 +1,7 @@
+<h3 class="text-center"> {{ currentPlayer?.color | titlecase }} Player</h3>
+<div class="board">
+  <ng-container *ngFor="let cell of board.cells">
+    <app-cell *ngFor="let row of cell; let id = index" [color]="row.color" [logo]="row.figure?.logo" 
+      [selectedCell]="row.x === selectedCell?.x && row.y === selectedCell?.y" (onSelect)="onSelect($event)" [cell]="row"></app-cell>
+  </ng-container>
+</div>
