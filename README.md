@@ -1,4 +1,4 @@
-# AngularChess
+# AngularChess (Work In Progress)
 
 npm install
 
