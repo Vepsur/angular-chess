@@ -102,7 +102,11 @@
           }
         },
         "deploy": {
-          "builder": "angular-cli-ghpages:deploy"
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {
+            "baseHref": "https://vepsur.github.io/angular-chess/",
+            "name": "Angular-chess"
+          }
         }
       }
     }
