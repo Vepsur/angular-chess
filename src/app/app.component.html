@@ -1,5 +1,5 @@
 <div class="app">
-  <app-timer (onRestart)="onRestart()"  [currentPlayer]="currentPlayer" [firstStep]="firstStep"></app-timer>
+  <app-timer (onRestart)="onRestart()"  [currentPlayer]="currentPlayer" [board]="board" [firstStep]="firstStep"></app-timer>
   <app-board [board]="board" [currentPlayer]="currentPlayer" (swapPlayer)="swapPlayer()" [gameEnd]="gameEnd"></app-board>
   <div>
     <app-lost-figures [title]="'Black figures'" [figures]="board.lostBlackFigures"></app-lost-figures>

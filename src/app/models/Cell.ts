@@ -72,11 +72,6 @@ export class Cell {
         const cell = this.board.getCell(x, y);
 
         if (cell.isEnemy(this) && cell.figure?.canMove(hollowCell)) {
-          console.log(cell.isEnemy(this));
-          console.log(cell.figure);
-          console.log(this.figure);
-          
-          
           return cell;
         }
       }
@@ -90,7 +85,7 @@ export class Cell {
 
     const checkFigures = (): boolean => {
       switch (x) {
-        case 2:   
+        case 2:
           return !!(this.board.getCell(x - 2, y).figure?.isFirstStep
             && this.board.getCell(x - 2, y).figure?.name === FigureNames.ROOK
             && !this.board.getCell(x - 2, y).isEnemy(this)
@@ -112,9 +107,9 @@ export class Cell {
         const target = this.board.getCell(x + i - 1, y);
 
         if (i !== 0) {
-          emptyCheck = emptyCheck && target.isEmpty() && !this.isUnderAttack(target); 
+          emptyCheck = emptyCheck && target.isEmpty() && !this.isUnderAttack(target);
         } else {
-          emptyCheck = emptyCheck && target.isEmpty(); 
+          emptyCheck = emptyCheck && target.isEmpty();
         }
       }
       return emptyCheck;
@@ -143,17 +138,16 @@ export class Cell {
   }
 
   isEmpty(target: Cell | null = null): boolean {
-    if (target) { 
+    if (target) {
       if (this.figure !== null && (this.figure?.name === FigureNames.KING && target?.isEnemy(this)) || this.figure?.selected) {
         return true;
       }
     }
-
     return (this.figure === null);
   }
 
   isEnemy(target: Cell): boolean {
-    if (target.figure) {     
+    if (target.figure) {
       return this.figure?.color !== target.figure.color;
     }
     return false;
@@ -244,7 +238,7 @@ export class Cell {
         this.setFigure(target.figure);
         enemyFigure ? target.setFigure(enemyFigure) : target.figure = null;
         return false;
-      } else if (checkMate) alert(`Check to ${checkMate.color}`);
+      } else if (checkMate) alert(`${checkMate.message}`);
 
       if (enemyFigure) this.addLostFigure(enemyFigure);
 

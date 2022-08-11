@@ -41,8 +41,5 @@ export class Figure {
 
   moveFigure(target: Cell) {
     this.isFirstStep = false;
-    console.log(this.cell.board.check);
-    this.cell.board.check = false;
-    
   }
 }

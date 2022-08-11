@@ -1,3 +1,4 @@
+import { Board } from './../../models/Board';
 import { Player } from './../../models/Player';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Colors } from 'src/app/models/Colors';
@@ -10,6 +11,7 @@ import { Colors } from 'src/app/models/Colors';
 export class TimerComponent implements OnInit, OnChanges {
   @Input() currentPlayer: Player | null = null;
   @Input() firstStep: boolean = true;
+  @Input() board!: Board;
 
   @Output() onRestart = new EventEmitter();
   restart() {

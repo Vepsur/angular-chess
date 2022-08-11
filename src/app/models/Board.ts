@@ -68,6 +68,8 @@ export class Board {
             const underAttackPlayer = attackingFigure.figure.color === Colors.BLACK ? Colors.WHITE : Colors.BLACK;
 
             if (this.highlightCells(cell, false) || attackingFigure.isAttacking()) {
+              console.log(this.highlightCells(cell, false));
+              console.log(attackingFigure.isAttacking());
               this.check = true;
               return { message: 'Check.', color: underAttackPlayer };
             }
@@ -91,7 +93,6 @@ export class Board {
   }
 
   moveCauseCheck(figure: Figure): boolean {
-
     if (this.check) return false;
 
     for (let i = 0; i < this.cells.length; i++) {
@@ -161,11 +162,11 @@ export class Board {
   }
 
   public addFigures() {
-    // this.addBishops();
+    this.addBishops();
     this.addKings();
-    // this.addKnights();
-    // this.addPawns();
-    // this.addQueens();
+    this.addKnights();
+    this.addPawns();
+    this.addQueens();
     this.addRooks();
   }
 }
