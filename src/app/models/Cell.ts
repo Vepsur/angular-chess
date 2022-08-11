@@ -9,7 +9,6 @@ export class Cell {
   figure: Figure | null;
   board: Board;
   available: boolean;
-  id: number;
 
   constructor(board: Board, x: number, y: number, color: Colors, figure: Figure | null) {
     this.x = x;
@@ -18,16 +17,14 @@ export class Cell {
     this.figure = figure;
     this.board = board;
     this.available = false;
-    this.id = Math.random();
   }
 
-  isUnderAttack(target: Cell, selectedKing: Cell): boolean {
+  isUnderAttack(target: Cell): boolean {
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const cell = this.board.getCell(x, y);
 
-        if (cell.isEnemy(selectedKing)) {
-          const hollowTarget = this.createHollowCell(target);
+        if (cell.isEnemy(this)) {
 
           if (cell.figure?.name === FigureNames.KING) {
             if ((target.y === cell.y || target.y === cell.y + 1 || target.y === cell.y - 1)
@@ -44,10 +41,6 @@ export class Cell {
           }
 
           if (cell.figure?.name !== FigureNames.PAWN && cell.figure?.canMove(target)) {
-            return true;
-          }
-
-          if (selectedKing.isEnemy(target) && cell.figure?.name !== FigureNames.PAWN && cell.figure?.canMove(hollowTarget)) {
             return true;
           }
         }
@@ -72,12 +65,18 @@ export class Cell {
   }
 
   isAttacking(): Cell | null {
+    const hollowCell = this.createHollowCell(this);
+
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const cell = this.board.getCell(x, y);
-        const hollowTarget = this.createHollowCell(this);
 
-        if (cell.isEnemy(this) && cell.figure?.canMove(hollowTarget)) {
+        if (cell.isEnemy(this) && cell.figure?.canMove(hollowCell)) {
+          console.log(cell.isEnemy(this));
+          console.log(cell.figure);
+          console.log(this.figure);
+          
+          
           return cell;
         }
       }
@@ -91,17 +90,17 @@ export class Cell {
 
     const checkFigures = (): boolean => {
       switch (x) {
-        case 1:
-          return !!(this.board.getCell(x - 1, y).figure?.isFirstStep
-            && this.board.getCell(x - 1, y).figure?.name === FigureNames.ROOK
-            && !this.board.getCell(x - 1, y).isEnemy(this)
-            && this.figure?.isFirstStep && !this.isCheckmate);
+        case 2:   
+          return !!(this.board.getCell(x - 2, y).figure?.isFirstStep
+            && this.board.getCell(x - 2, y).figure?.name === FigureNames.ROOK
+            && !this.board.getCell(x - 2, y).isEnemy(this)
+            && this.figure?.isFirstStep && !this.figure.cell.isAttacking());
 
         case 6:
           return !!(this.board.getCell(x + 1, y).figure?.isFirstStep
             && this.board.getCell(x + 1, y).figure?.name === FigureNames.ROOK
             && !this.board.getCell(x + 1, y).isEnemy(this)
-            && this.figure?.isFirstStep && !this.isCheckmate);
+            && this.figure?.isFirstStep && !this.figure.cell.isAttacking());
         default:
           return false;
       }
@@ -110,8 +109,13 @@ export class Cell {
     const checkLeftCastling = () => {
       let emptyCheck = true;
       for (let i = 0; i < 3; i++) {
-        const target = this.board.getCell(x + i, y);
-        emptyCheck = emptyCheck && target.isEmpty() && !this.isUnderAttack(target, this);
+        const target = this.board.getCell(x + i - 1, y);
+
+        if (i !== 0) {
+          emptyCheck = emptyCheck && target.isEmpty() && !this.isUnderAttack(target); 
+        } else {
+          emptyCheck = emptyCheck && target.isEmpty(); 
+        }
       }
       return emptyCheck;
     }
@@ -120,13 +124,13 @@ export class Cell {
       let emptyCheck = true;
       for (let i = 0; i < 2; i++) {
         const target = this.board.getCell(x - i, y);
-        emptyCheck = emptyCheck && target.isEmpty() && !this.isUnderAttack(target, this);
+        emptyCheck = emptyCheck && target.isEmpty() && !this.isUnderAttack(target);
       }
       return emptyCheck;
     }
 
     switch (x) {
-      case 1:
+      case 2:
         if (checkFigures() && checkLeftCastling()) return true;
         break;
 
@@ -138,48 +142,18 @@ export class Cell {
     return false;
   }
 
-  isCheckmate(): boolean {
-    for (let y = 0; y < 8; y++) {
-      for (let x = 0; x < 8; x++) {
-        const cell = this.board.getCell(x, y);
-
-        if (cell.figure?.name === FigureNames.KING) {
-          const hollowTarget = this.createHollowCell(cell);
-
-          if (this.isUnderAttack(hollowTarget, cell)) {
-            if (this.board.highlightCells(cell, false) || cell.isAttacking()?.isAttacking()) {
-              alert('Check');
-              return true;
-            }
-
-            switch (cell.figure.color) {
-              case Colors.BLACK:
-                this.board.gameEnd = true;
-                alert('Checkmate. White wins!');
-                break;
-
-              case Colors.WHITE:
-                this.board.gameEnd = true;
-                alert('Checkmate. Black wins!');
-                break;
-            }
-          }
-        }
+  isEmpty(target: Cell | null = null): boolean {
+    if (target) { 
+      if (this.figure !== null && (this.figure?.name === FigureNames.KING && target?.isEnemy(this)) || this.figure?.selected) {
+        return true;
       }
-    }
-    return false;
-  }
-
-  isEmpty(target?: Cell): boolean {
-    if (this.figure !== null && (this.figure?.name === FigureNames.KING && target?.isEnemy(this))) {
-      return true;
     }
 
     return (this.figure === null);
   }
 
   isEnemy(target: Cell): boolean {
-    if (target.figure) {
+    if (target.figure) {     
       return this.figure?.color !== target.figure.color;
     }
     return false;
@@ -253,15 +227,29 @@ export class Cell {
       : this.board.lostWhiteFigures.push(figure);
   }
 
-  moveFigure(target: Cell) {
+  moveFigure(target: Cell): boolean {
+    const thisCell: Cell = this;
+    let enemyFigure: Figure | null = null;
+
     if (this.figure && this.figure.canMove(target)) {
-      this.figure?.moveFigure(target);
-
-      if (target.figure) this.addLostFigure(target.figure);
-
+      if (target.figure) enemyFigure = target.figure;
+      this.figure.moveFigure(target);
       target.setFigure(this.figure);
       this.figure = null;
-      setTimeout(() => this.isCheckmate(), 80);
+
+      const checkMate = this.board.isCheckmate();
+
+      if (checkMate && checkMate.color === target.figure?.color) {
+        alert("You can't do that. You king will be under attack.")
+        this.setFigure(target.figure);
+        enemyFigure ? target.setFigure(enemyFigure) : target.figure = null;
+        return false;
+      } else if (checkMate) alert(`Check to ${checkMate.color}`);
+
+      if (enemyFigure) this.addLostFigure(enemyFigure);
+
+      return true;
     }
+    return false;
   }
 }

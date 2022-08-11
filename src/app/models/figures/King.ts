@@ -8,8 +8,6 @@ const whiteLogo = '/assets/white-king.png';
 
 export class King extends Figure {
 
-  castlingRook: Cell | null = null;
-
   constructor(color: Colors, cell: Cell) {
     super(color, cell);
     this.logo = color === Colors.BLACK ? blackLogo : whiteLogo;
@@ -17,22 +15,25 @@ export class King extends Figure {
   }
 
   override canMove(target: Cell): boolean {
+    const x = this.cell.x;
+    const y = this.cell.y;
     const hollowTarget = Object.assign({}, target);
+
     hollowTarget.figure = null;
     
-    const checkAvaliableCells: boolean = (target.y === this.cell.y || target.y + 1 === this.cell.y || target.y - 1 === this.cell.y)
-      && (target.x === this.cell.x || target.x + 1 === this.cell.x || target.x - 1 === this.cell.x);
+    const checkAvaliableCells: boolean = (target.y === y || target.y + 1 === y || target.y - 1 === y)
+      && (target.x === x || target.x + 1 === x || target.x - 1 === x);
 
     if (!super.canMove(target)) return false;
 
     if (checkAvaliableCells
       && (this.cell.board.getCell(target.x, target.y).isEmpty() || (this.cell.isEnemy(target) && !target.isProtected()))
-      && (!target.isUnderAttack(target, this.cell))) {
+      && (!this.cell.isUnderAttack(target))) {
       return true;
     }
+    
 
     if (this.cell.isCastling(target)) return true;
-
 
     return false;
   }
@@ -42,9 +43,9 @@ export class King extends Figure {
 
     if (this.cell.x - target.x > 1) {
       if (this.color === Colors.BLACK) {
-        this.cell.board.getCell(0, 0).moveFigure(this.cell.board.getCell(2, 0));
+        this.cell.board.getCell(0, 0).moveFigure(this.cell.board.getCell(3, 0));
       } else {
-        this.cell.board.getCell(0, 7).moveFigure(this.cell.board.getCell(2, 7));
+        this.cell.board.getCell(0, 7).moveFigure(this.cell.board.getCell(3, 7));
       }
     } else if (this.cell.x - target.x < -1) {
       if (this.color === Colors.BLACK) {

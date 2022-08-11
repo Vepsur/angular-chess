@@ -104,8 +104,9 @@
         "deploy": {
           "builder": "angular-cli-ghpages:deploy",
           "options": {
-            "baseHref": "https://vepsur.github.io/angular-chess/",
-            "name": "Angular-chess"
+            "baseHref": "git@github.com:Vepsur/angular-chess.git",
+            "name": "Vepsur",
+            "email": "cezarroll96@gmail.com"
           }
         }
       }

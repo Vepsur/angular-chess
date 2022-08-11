@@ -1,4 +1,4 @@
-import { Figure } from './figures/Figure';
+import { Figure, FigureNames } from './figures/Figure';
 import { Cell } from "./Cell";
 import { Colors } from "./Colors";
 import { Bishop } from "./figures/Bishop";
@@ -8,10 +8,17 @@ import { Pawn } from "./figures/Pawn";
 import { Queen } from "./figures/Queen";
 import { Rook } from "./figures/Rook";
 
+interface checkmateData {
+  message: string;
+  color: string;
+}
+
 export class Board {
   cells: Cell[][] = [];
   lostBlackFigures: Figure[] = [];
   lostWhiteFigures: Figure[] = [];
+  check: boolean = false;
+  checkmate: boolean = false;
   gameEnd: boolean = false;
 
 
@@ -37,14 +44,67 @@ export class Board {
       for (let j = 0; j < row.length; j++) {
         const target = row[j];
         if (display) target.available = !!selectedCell?.figure?.canMove(target);
-        
+
         if (!!selectedCell?.figure?.canMove(target)) {
           movePossibility = true;
-        } 
+        }
       }
     }
 
     return movePossibility;
+  }
+
+  isCheckmate(): checkmateData | false {
+    for (let i = 0; i < this.cells.length; i++) {
+      const row = this.cells[i];
+      for (let j = 0; j < row.length; j++) {
+        const cell = row[j];
+
+        if (cell.figure?.name === FigureNames.KING) {
+          const attackingFigure = cell.isAttacking();
+          
+
+          if (attackingFigure?.figure) {
+            const underAttackPlayer = attackingFigure.figure.color === Colors.BLACK ? Colors.WHITE : Colors.BLACK;
+
+            if (this.highlightCells(cell, false) || attackingFigure.isAttacking()) {
+              this.check = true;
+              return { message: 'Check.', color: underAttackPlayer };
+            }
+
+            switch (cell.figure.color) {
+              case Colors.BLACK:
+                this.gameEnd = true;
+                return { message: 'Checkmate. White wins!', color: cell.figure.color };
+
+              case Colors.WHITE:
+                this.gameEnd = true;
+                return { message: 'Checkmate. Black wins!', color: cell.figure.color };
+            }
+          }
+        }
+      }
+    }
+    this.check = false;
+
+    return false;
+  }
+
+  moveCauseCheck(figure: Figure): boolean {
+
+    if (this.check) return false;
+
+    for (let i = 0; i < this.cells.length; i++) {
+      const row = this.cells[i];
+      for (let j = 0; j < row.length; j++) {
+        const cell = row[j];
+
+        if (cell.figure?.name === FigureNames.KING && !cell.isEnemy(figure.cell) && cell.isAttacking()) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   public getCopyBoard(): Board {
@@ -53,7 +113,8 @@ export class Board {
     newBoard.lostBlackFigures = this.lostBlackFigures;
     newBoard.lostWhiteFigures = this.lostWhiteFigures;
     newBoard.gameEnd = this.gameEnd;
-    
+    newBoard.check = this.check;
+
     return newBoard;
   }
 
@@ -100,11 +161,11 @@ export class Board {
   }
 
   public addFigures() {
-    this.addBishops();
+    // this.addBishops();
     this.addKings();
-    this.addKnights();
-    this.addPawns();
-    this.addQueens();
+    // this.addKnights();
+    // this.addPawns();
+    // this.addQueens();
     this.addRooks();
   }
 }

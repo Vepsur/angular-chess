@@ -31,6 +31,7 @@ export class CellComponent implements OnInit, OnChanges {
     if (this._oldValue !== this.selectedCell) {
       this._oldValue = this.selectedCell;
     }
+    
   }
 
   ngOnChanges(changes: SimpleChanges): void {

@@ -1,5 +1,10 @@
-<div class="cell" (selectedCell)="selectedCell" [ngClass]="[color, selectedCell ? 'selected' : '', cell?.available && cell?.figure ? 'green' : '']"
+<div class="cell" (selectedCell)="selectedCell"
+  [ngClass]="[color, selectedCell ? 'selected' : '', cell?.available && cell?.figure ? 'green' : '']"
   (click)="change()">
-  <div *ngIf="cell?.available && !cell?.figure" class="avaliable"></div>
-  <img *ngIf="logo" [src]="logo" alt="logo">
+  <ng-container *ngIf="cell?.available && !cell?.figure">
+    <div class="avaliable"></div>
+  </ng-container>
+  <ng-container *ngIf="logo">
+    <img [src]="logo" alt="logo">
+  </ng-container>
 </div>

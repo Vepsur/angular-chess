@@ -12,7 +12,6 @@ export class BoardComponent implements OnInit, OnChanges, DoCheck {
   @Input() board!: Board;
   @Input() currentPlayer!: Player | null;
   @Input() selectedCell: Cell | null = null;
-  @Input() selected: boolean = false;
   @Input() gameEnd!: boolean;
 
   private _cellOldValue: Cell | null = this.selectedCell;
@@ -23,14 +22,19 @@ export class BoardComponent implements OnInit, OnChanges, DoCheck {
     this.swapPlayer.emit();
   }
 
-  onSelect(cell: any) {
+  onSelect(cell: Cell) {
     if (!this.gameEnd) {
       if (this.selectedCell && this.selectedCell !== cell && this.selectedCell.figure && this.selectedCell.figure.canMove(cell)) {
-        this.selectedCell.moveFigure(cell);
-        this.swap();
-        this.selectedCell = null;
+        this.selectedCell.figure.selected = false;
+        if (this.selectedCell.moveFigure(cell)) {
+          this.swap();
+          this.selectedCell = null;
+        }
+      } else if (cell.figure && cell.figure.color === this.currentPlayer?.color) {
+        cell.figure.selected = true;
+        this.selectedCell = cell;
       } else {
-        if (cell.figure?.color === this.currentPlayer?.color) this.selectedCell = cell;
+        if (cell.figure) cell.figure.selected = false;
       }
     }
   }
@@ -45,14 +49,16 @@ export class BoardComponent implements OnInit, OnChanges, DoCheck {
     this.board = newBoard;
   }
 
-  constructor(private _changeRef: ChangeDetectorRef) { }
+  constructor() { }
 
   ngOnInit(): void { }
 
   ngDoCheck() {
     if (this._cellOldValue !== this.selectedCell) {
+      if (this._cellOldValue?.figure) this._cellOldValue.figure.selected = false;
       this._cellOldValue = this.selectedCell;
       this.highlightCells();
+
     }
     if (this._gameEndOldValue !== this.gameEnd) {
       this._gameEndOldValue = this.gameEnd;
