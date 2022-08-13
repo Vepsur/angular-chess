@@ -2,6 +2,6 @@
 
 npm install
 
-npm run
+ng serve // run app on localhost:4200
 
 Thanks to Ulbi!
