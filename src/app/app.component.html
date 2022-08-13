@@ -1,8 +1,0 @@
-<div class="app">
-  <app-timer (onRestart)="onRestart()"  [currentPlayer]="currentPlayer" [firstStep]="firstStep"></app-timer>
-  <app-board [board]="board" [currentPlayer]="currentPlayer" (swapPlayer)="swapPlayer()" [gameEnd]="gameEnd"></app-board>
-  <div>
-    <app-lost-figures [title]="'Black figures'" [figures]="board.lostBlackFigures"></app-lost-figures>
-    <app-lost-figures [title]="'White figures'" [figures]="board.lostWhiteFigures"></app-lost-figures>
-  </div>
-</div>
