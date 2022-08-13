@@ -1,3 +1,4 @@
+import { GameDataService } from './../../services/game-data.service';
 import { Board } from './../../models/Board';
 import { Player } from './../../models/Player';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
@@ -15,6 +16,7 @@ export class TimerComponent implements OnInit, OnChanges {
 
   @Output() onRestart = new EventEmitter();
   restart() {
+    this.gameDataService.unselectCell();
     this.blackTime = 300;
     this.whiteTime = 300;
     this.onRestart.emit();
@@ -30,7 +32,7 @@ export class TimerComponent implements OnInit, OnChanges {
     }
 
     const callback = this.currentPlayer?.color === Colors.WHITE ? this.decrementWhiteTimer.bind(this) : this.decrementBlackTimer.bind(this);
-    if (!this.firstStep) this.timer = setInterval(callback, 1000);
+    if (!this.firstStep && !this.board.checkmate) this.timer = setInterval(callback, 1000);
   }
 
   decrementBlackTimer() {
@@ -51,13 +53,17 @@ export class TimerComponent implements OnInit, OnChanges {
     }
   }
 
-  constructor() { }
+  constructor(public gameDataService: GameDataService) { }
   ngOnChanges(changes: SimpleChanges): void {
     this.startTimer();
+    if (this.board.checkmate) {
+      this.startTimer();
+    }
   }
 
 
   ngOnInit(): void {
+    this.gameDataService.board.subscribe(board => this.board = board);
   }
 
   ngDoCheck() {

@@ -1,3 +1,4 @@
+import { GameDataService } from './../../services/game-data.service';
 import { Component, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Cell } from 'src/app/models/Cell';
 import { EventEmitter } from '@angular/core';
@@ -11,7 +12,7 @@ import { EventEmitter } from '@angular/core';
 export class CellComponent implements OnInit, OnChanges {
   @Input() color!: string;
   @Input() logo: string | null | undefined;
-  @Input() selectedCell!: boolean;
+  @Input() selectedCell: boolean = false;
   @Input() cell: Cell | null = null;
 
   private _oldValue: boolean = this.selectedCell;
@@ -21,7 +22,7 @@ export class CellComponent implements OnInit, OnChanges {
     this.onSelect.emit(this.cell);
   }
 
-  constructor() { }
+  constructor(private gameDataService: GameDataService) { }
   
 
   ngOnInit(): void {

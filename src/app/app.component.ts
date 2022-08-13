@@ -1,3 +1,4 @@
+import { GameDataService } from './services/game-data.service';
 import { Board } from 'src/app/models/Board';
 import { Colors } from 'src/app/models/Colors';
 import { Player } from './models/Player';
@@ -11,18 +12,18 @@ import { Component, OnInit } from '@angular/core';
 export class AppComponent implements OnInit {
   title = 'angular-chess';
   firstStep: boolean = true;
-  board = new Board();
+  board: Board = new Board;
   whitePlayer = new Player(Colors.WHITE);
   blackPlayer = new Player(Colors.BLACK);
-  gameEnd = this.board.gameEnd;
+  gameEnd = this.board.checkmate;
+  selectedCell = this.board.selectedCell;
 
   currentPlayer: Player | null = null;
 
   onRestart() {
-    this.board = new Board();
+    this.gameDataService.restartBoard();
     this.board.initCells();
     this.board.addFigures();
-    console.log('restart ', this.board.gameEnd);
     this.currentPlayer = this.whitePlayer;
     this.firstStep = true;
   }
@@ -32,7 +33,14 @@ export class AppComponent implements OnInit {
     this.firstStep = false;
   }
 
+  constructor(
+    private gameDataService: GameDataService
+  ) {
+
+  }
+
   ngOnInit(): void {
+    this.gameDataService.board.subscribe(val => this.board = val);
     this.onRestart();
   }
 }

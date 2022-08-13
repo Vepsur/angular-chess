@@ -17,9 +17,9 @@ export class Board {
   cells: Cell[][] = [];
   lostBlackFigures: Figure[] = [];
   lostWhiteFigures: Figure[] = [];
+  selectedCell: Cell | null = null;
   check: boolean = false;
   checkmate: boolean = false;
-  gameEnd: boolean = false;
 
 
   public initCells() {
@@ -54,47 +54,42 @@ export class Board {
     return movePossibility;
   }
 
-  isCheckmate(): checkmateData | false {
+  isCheckmate(defendCheck: boolean): checkmateData | false {
     for (let i = 0; i < this.cells.length; i++) {
       const row = this.cells[i];
       for (let j = 0; j < row.length; j++) {
         const cell = row[j];
-
-        if (cell.figure?.name === FigureNames.KING) {
+        
+        if (cell.isKing()) {
           const attackingFigure = cell.isAttacking();
           
-
           if (attackingFigure?.figure) {
             const underAttackPlayer = attackingFigure.figure.color === Colors.BLACK ? Colors.WHITE : Colors.BLACK;
 
-            if (this.highlightCells(cell, false) || attackingFigure.isAttacking()) {
-              console.log(this.highlightCells(cell, false));
-              console.log(attackingFigure.isAttacking());
+            if (this.highlightCells(cell, false) || attackingFigure.isAttacking() || (defendCheck && this.moveCanDefend(cell))) {
               this.check = true;
               return { message: 'Check.', color: underAttackPlayer };
             }
-
-            switch (cell.figure.color) {
+            
+            switch (cell.figure?.color) {
               case Colors.BLACK:
-                this.gameEnd = true;
-                return { message: 'Checkmate. White wins!', color: cell.figure.color };
+                this.checkmate = true;
+                return { message: 'Checkmate.', color: cell.figure.color };
 
               case Colors.WHITE:
-                this.gameEnd = true;
-                return { message: 'Checkmate. Black wins!', color: cell.figure.color };
+                this.checkmate = true;
+                return { message: 'Checkmate.', color: cell.figure.color };
             }
           }
         }
       }
     }
-    this.check = false;
+    // this.check = false;
 
     return false;
   }
 
   moveCauseCheck(figure: Figure): boolean {
-    if (this.check) return false;
-
     for (let i = 0; i < this.cells.length; i++) {
       const row = this.cells[i];
       for (let j = 0; j < row.length; j++) {
@@ -108,12 +103,35 @@ export class Board {
     return false;
   }
 
+  moveCanDefend(king: Cell): boolean {
+    for (let i = 0; i < this.cells.length; i++) {
+      const row = this.cells[i];
+      for (let j = 0; j < row.length; j++) {
+        const cell = row[j];
+
+        if (cell.figure && !cell.isEnemy(king)) {
+          for (let i = 0; i < this.cells.length; i++) {
+            const row = this.cells[i];
+            for (let j = 0; j < row.length; j++) {
+              const target = row[j];
+
+              if (cell.moveFigure(target, true)) {        
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   public getCopyBoard(): Board {
     const newBoard = new Board();
     newBoard.cells = this.cells;
     newBoard.lostBlackFigures = this.lostBlackFigures;
     newBoard.lostWhiteFigures = this.lostWhiteFigures;
-    newBoard.gameEnd = this.gameEnd;
+    newBoard.checkmate = this.checkmate;
     newBoard.check = this.check;
 
     return newBoard;
@@ -162,10 +180,10 @@ export class Board {
   }
 
   public addFigures() {
-    this.addBishops();
+    // this.addBishops();
     this.addKings();
-    this.addKnights();
-    this.addPawns();
+    // this.addKnights();
+    // this.addPawns();
     this.addQueens();
     this.addRooks();
   }

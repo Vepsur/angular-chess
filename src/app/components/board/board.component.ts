@@ -1,3 +1,4 @@
+import { GameDataService } from './../../services/game-data.service';
 import { Player } from './../../models/Player';
 import { Cell } from 'src/app/models/Cell';
 import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
@@ -9,13 +10,12 @@ import { Board } from 'src/app/models/Board';
   styleUrls: ['./board.component.scss']
 })
 export class BoardComponent implements OnInit, OnChanges, DoCheck {
-  @Input() board!: Board;
+  board!: Board;
+
   @Input() currentPlayer!: Player | null;
-  @Input() selectedCell: Cell | null = null;
-  @Input() gameEnd!: boolean;
+  selectedCell: Cell | null = null;
 
   private _cellOldValue: Cell | null = this.selectedCell;
-  private _gameEndOldValue: boolean = this.gameEnd;
 
   @Output() swapPlayer = new EventEmitter();
   swap() {
@@ -23,45 +23,41 @@ export class BoardComponent implements OnInit, OnChanges, DoCheck {
   }
 
   onSelect(cell: Cell) {
-    if (!this.gameEnd) {
+    if (!this.board.checkmate) {
       if (this.selectedCell && this.selectedCell !== cell && this.selectedCell.figure && this.selectedCell.figure.canMove(cell)) {
-        this.selectedCell.figure.selected = false;
-        if (this.selectedCell.moveFigure(cell)) {
+        const gameStatus = this.selectedCell.moveFigure(cell);
+
+        if (gameStatus === 'Checkmate.') {
+          this.gameDataService.unselectCell();
+          this.gameDataService.checkmate(this.board);  
+        } else if (gameStatus) {
           this.swap();
-          this.selectedCell = null;
+          this.gameDataService.unselectCell();
         }
       } else if (cell.figure && cell.figure.color === this.currentPlayer?.color) {
-        cell.figure.selected = true;
-        this.selectedCell = cell;
-      } else {
-        if (cell.figure) cell.figure.selected = false;
+        this.gameDataService.selectCell(cell);
       }
     }
   }
 
   highlightCells() {
     this.board.highlightCells(this.selectedCell);
-    this.updateBoard();
+    this.gameDataService.updateBoard(this.board);
   }
 
-  updateBoard() {
-    const newBoard = this.board.getCopyBoard();
-    this.board = newBoard;
+  constructor(
+    private gameDataService: GameDataService
+  ) { }
+
+  ngOnInit(): void {
+    this.gameDataService.board.subscribe(val => this.board = val);
+    this.gameDataService.selectedCell.subscribe(val => this.selectedCell = val);
   }
-
-  constructor() { }
-
-  ngOnInit(): void { }
 
   ngDoCheck() {
     if (this._cellOldValue !== this.selectedCell) {
-      if (this._cellOldValue?.figure) this._cellOldValue.figure.selected = false;
       this._cellOldValue = this.selectedCell;
       this.highlightCells();
-
-    }
-    if (this._gameEndOldValue !== this.gameEnd) {
-      this._gameEndOldValue = this.gameEnd;
     }
   }
 

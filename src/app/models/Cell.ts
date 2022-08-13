@@ -139,7 +139,7 @@ export class Cell {
 
   isEmpty(target: Cell | null = null): boolean {
     if (target) {
-      if (this.figure !== null && (this.figure?.name === FigureNames.KING && target?.isEnemy(this)) || this.figure?.selected) {
+      if (this.figure !== null && (this.isKing() && target?.isEnemy(this))) {
         return true;
       }
     }
@@ -210,6 +210,10 @@ export class Cell {
     return true;
   }
 
+  isKing() {
+    return this.figure && this.figure.name === FigureNames.KING;
+  }
+
   setFigure(figure: Figure) {
     this.figure = figure;
     this.figure.cell = this;
@@ -221,8 +225,7 @@ export class Cell {
       : this.board.lostWhiteFigures.push(figure);
   }
 
-  moveFigure(target: Cell): boolean {
-    const thisCell: Cell = this;
+  moveFigure(target: Cell, check: boolean = false): boolean | string {
     let enemyFigure: Figure | null = null;
 
     if (this.figure && this.figure.canMove(target)) {
@@ -231,19 +234,34 @@ export class Cell {
       target.setFigure(this.figure);
       this.figure = null;
 
-      const checkMate = this.board.isCheckmate();
+      const checkMate = this.board.isCheckmate(!check);
 
       if (checkMate && checkMate.color === target.figure?.color) {
-        alert("You can't do that. You king will be under attack.")
+        if (!check) {
+          alert("You can't do that. You king will be under attack.")
+        }
+        
         this.setFigure(target.figure);
         enemyFigure ? target.setFigure(enemyFigure) : target.figure = null;
+        
         return false;
-      } else if (checkMate) alert(`${checkMate.message}`);
+      } else if (checkMate && !check) {
+        setTimeout(() => {
+          alert(`${checkMate.message}`);
+        }, 10);
+        return checkMate.message;
+      } 
 
-      if (enemyFigure) this.addLostFigure(enemyFigure);
+      if (enemyFigure  && !check) this.addLostFigure(enemyFigure);
+
+      if ( check && target.figure ) {
+        this.setFigure(target.figure);
+        enemyFigure ? target.setFigure(enemyFigure) : target.figure = null;
+      }
 
       return true;
     }
+
     return false;
   }
 }

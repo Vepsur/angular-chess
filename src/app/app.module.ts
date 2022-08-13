@@ -1,3 +1,4 @@
+import { GameDataService } from './services/game-data.service';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -18,7 +19,7 @@ import { TimerComponent } from './components/timer/timer.component';
   imports: [
     BrowserModule
   ],
-  providers: [],
+  providers: [GameDataService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
