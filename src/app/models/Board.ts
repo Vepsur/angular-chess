@@ -20,6 +20,7 @@ export class Board {
   selectedCell: Cell | null = null;
   check: boolean = false;
   checkmate: boolean = false;
+  message: string | null = null;
 
 
   public initCells() {
@@ -36,7 +37,7 @@ export class Board {
     }
   }
 
-  public highlightCells(selectedCell: Cell | null, display: boolean = true) {
+  public highlightCells(selectedCell: Cell | null, display: boolean = true): boolean {
     let movePossibility: boolean = false;
 
     for (let i = 0; i < this.cells.length; i++) {
@@ -67,7 +68,7 @@ export class Board {
             const underAttackPlayer = attackingFigure.figure.color === Colors.BLACK ? Colors.WHITE : Colors.BLACK;
 
             if (this.highlightCells(cell, false) || attackingFigure.isAttacking() || (defendCheck && this.moveCanDefend(cell))) {
-              this.check = true;
+              this.checkmate = true;
               return { message: 'Check.', color: underAttackPlayer };
             }
             
@@ -80,11 +81,15 @@ export class Board {
                 this.checkmate = true;
                 return { message: 'Checkmate.', color: cell.figure.color };
             }
+
+            /* if (!attackingFigure?.figure && this.highlightCells(cell, false) && ) {
+              this.check = true;
+              return { message: 'Pat.', color: underAttackPlayer };
+            } */
           }
         }
       }
     }
-    // this.check = false;
 
     return false;
   }
@@ -180,10 +185,10 @@ export class Board {
   }
 
   public addFigures() {
-    // this.addBishops();
+    this.addBishops();
     this.addKings();
-    // this.addKnights();
-    // this.addPawns();
+    this.addKnights();
+    this.addPawns();
     this.addQueens();
     this.addRooks();
   }

@@ -24,6 +24,10 @@ export class BoardComponent implements OnInit, OnChanges, DoCheck {
 
   onSelect(cell: Cell) {
     if (!this.board.checkmate) {
+      if (this.selectedCell === cell) {
+        this.selectedCell = null;
+        return;
+      }
       if (this.selectedCell && this.selectedCell !== cell && this.selectedCell.figure && this.selectedCell.figure.canMove(cell)) {
         const gameStatus = this.selectedCell.moveFigure(cell);
 

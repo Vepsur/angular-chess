@@ -2,8 +2,8 @@ import { Figure, FigureNames } from './Figure';
 import { Cell } from '../Cell';
 import { Colors } from '../Colors';
 
-const blackLogo = '/assets/black-bishop.png';
-const whiteLogo = '/assets/white-bishop.png';
+const blackLogo = 'assets/black-bishop.png';
+const whiteLogo = 'assets/white-bishop.png';
 
 export class Bishop extends Figure {
 

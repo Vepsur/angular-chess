@@ -2,8 +2,8 @@ import { Cell } from '../Cell';
 import { Colors } from '../Colors';
 import { Figure, FigureNames } from './Figure';
 
-const blackLogo = '/assets/black-pawn.png';
-const whiteLogo = '/assets/white-pawn.png';
+const blackLogo = 'assets/black-pawn.png';
+const whiteLogo = 'assets/white-pawn.png';
 
 export class Pawn extends Figure {
 

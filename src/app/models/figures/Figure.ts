@@ -18,7 +18,6 @@ export class Figure {
   name: FigureNames;
   id: number;
   isFirstStep: boolean;
-  selected: boolean;
 
   constructor(color: Colors, cell: Cell) {
     this.color = color;
@@ -28,18 +27,16 @@ export class Figure {
     this.name = FigureNames.FIGURE;
     this.id = Math.random();
     this.isFirstStep = true;
-    this.selected = false;
   }
 
   canMove(target: Cell): boolean {
     if (target.figure?.color === this.color) return false;
-    if (target.figure?.name === FigureNames.KING && target.figure.color === this.cell.color) return false;
+    if (target.figure?.name === FigureNames.KING && this.cell.isEnemy(target)) return false;
     if (target === this.cell) return false;
     
     return true;
   }
 
   moveFigure(target: Cell) {
-    this.isFirstStep = false;
   }
 }

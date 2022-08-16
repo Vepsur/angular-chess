@@ -4,7 +4,7 @@
   <ng-container *ngIf="cell?.available && !cell?.figure">
     <div class="avaliable"></div>
   </ng-container>
-  <ng-container *ngIf="logo">
-    <img [src]="logo" alt="logo">
+  <ng-container *ngIf="logo && !!cell?.figure?.name">
+    <img [src]="logo" alt={{cell?.figure?.name}}>
   </ng-container>
 </div>

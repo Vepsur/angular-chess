@@ -74,6 +74,14 @@ export class Cell {
         if (cell.isEnemy(this) && cell.figure?.canMove(hollowCell)) {
           return cell;
         }
+        
+        if (cell.isEnemy(this) && cell.figure?.name === FigureNames.PAWN) {
+          if (cell.figure.color === Colors.BLACK) {
+            if ((this.x === cell.x + 1 || this.x === cell.x - 1) && (this.y === cell.y + 1)) return cell;
+          } else {
+            if ((this.x === cell.x + 1 || this.x === cell.x - 1) && (this.y === cell.y - 1)) return cell;
+          }
+        }
       }
     }
     return null;
@@ -211,7 +219,7 @@ export class Cell {
   }
 
   isKing() {
-    return this.figure && this.figure.name === FigureNames.KING;
+    return !!this.figure && this.figure.name === FigureNames.KING;
   }
 
   setFigure(figure: Figure) {
@@ -259,6 +267,7 @@ export class Cell {
         enemyFigure ? target.setFigure(enemyFigure) : target.figure = null;
       }
 
+      if (target.figure) target.figure.isFirstStep = false;
       return true;
     }
 
